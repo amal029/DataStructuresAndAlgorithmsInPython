@@ -20,14 +20,14 @@ class BinaryTree:
             raise RuntimeError('Root has no parent')
         else:
             # Search the children to get the node
-            v = BinaryTree.__getNode(self._root, v)
+            v = BinaryTree._getNode(self._root, v)
             return v.getParent()
 
     def children(self, v):
         if v == self._root:
             return [self._root.getLeftSubTree(), self._root.getRightSubTree()]
         else:
-            r = BinaryTree.__getNode(self._root, v)
+            r = BinaryTree._getNode(self._root, v)
             return [r.getLeftSubTree(), r.getRightSubTree()]
 
     def __str__(self):
@@ -35,14 +35,15 @@ class BinaryTree:
 
     # The tree traversal methods
     @classmethod
-    def __getNode(cls, root, v):
+    def _getNode(cls, root, v):
         ret = None
+        # print('PIPI:', root, v)
         if root == v:
             ret = root
-        elif root.getLeftSubTree() is not None:
-            ret = BinaryTree.__getNode(root.getLeftSubTree().root(), v)
-        elif root.getRightSubTree() is not None:
-            ret = BinaryTree.__getNode(root.getRightSubTree().root(), v)
+        if root.getLeftSubTree() is not None and ret is None:
+            ret = BinaryTree._getNode(root.getLeftSubTree().root(), v)
+        if root.getRightSubTree() is not None and ret is None:
+            ret = BinaryTree._getNode(root.getRightSubTree().root(), v)
         return ret
 
     @classmethod
@@ -104,18 +105,18 @@ class Node:
         self._element = e
 
 
-class ManiPulateBinaryTree:
+class manipulateBinaryTree(object):
     def __init__(self, tree):
-        self.__tree = tree
+        self._tree = tree
 
     def addRoot(self, e):
-        if self.__tree.root() is None:
-            self.__tree.setRoot(Node(e))
+        if self._tree.root() is None:
+            self._tree.setRoot(Node(e))
         else:
             raise RuntimeError('Tree is not empty')
 
     def insertLeft(self, v, e):
-        vv = BinaryTree.__getNode(self.__tree.root(), v)
+        vv = BinaryTree._getNode(self._tree.root(), v)
         if vv is not None:
             if vv.getLeftSubTree() is None:
                 # Add
@@ -128,7 +129,7 @@ class ManiPulateBinaryTree:
             raise RuntimeError('Node:', v, 'not in the tree')
 
     def insertRight(self, v, e):
-        vv = BinaryTree.__getNode(self.__tree.root(), v)
+        vv = BinaryTree._getNode(self._tree.root(), v)
         if vv is not None:
             if vv.getRightSubTree() is None:
                 # Add
@@ -136,42 +137,54 @@ class ManiPulateBinaryTree:
                 vv.setRightSubTree(BinaryTree(w))
                 return w
             else:
-                raise RuntimeError('Node:', v, 'already has a right sub-tree')
+                raise RuntimeError('Node:', v.__str__(),
+                                   'already has a right sub-tree')
         else:
-            raise RuntimeError('Node:', v, 'not in the tree')
+            raise RuntimeError('Node:', v.__str__(), 'not in the tree')
 
     def remove(self, v):
-        vv = BinaryTree.__getNode(self.__tree.root(), v)
+        vv = BinaryTree._getNode(self._tree.root(), v)
         if vv is not None:
             element = vv.getElement()
-            # Get the parent
-            vp = vv.getParent()
-            if vv.getLeftSubTree() is None and vv.getRightSubTree() is None:
-                    if vp.getLeftSubTree().root() == vv:
-                        vp.setLeftSubTree(None)
-                    else:
-                        vp.setRightSubTree(None)
-            elif vv.getLeftSubTree() is not None and \
-                 vv.getRightSubTree() is None:
-                if vp.getLeftSubTree().root() == vv:
-                    vp.setLeftSubTree(vv.getLeftSubTree())
-                else:
-                    vp.setRightSubTree(vv.getLeftSubTree())
-            elif vv.getLeftSubTree() is not None and \
-                 vv.getRightSubTree() is not None:
-                if vp.getLeftSubTree().root() == vv:
-                    vp.setLeftSubTree(vv.getRightSubTree())
-                else:
-                    vp.setRightSubTree(vv.getRightSubTree())
-
+            lst = vv.getLeftSubTree()
+            rst = vv.getRightSubTree()
+            if vv == self._tree.root():
+                if lst is not None and rst is not None:
+                    raise RuntimeError('Node', v, 'has two children')
+                elif lst is not None:
+                    lst.root().setParent(None)
+                    self._tree.setRoot(lst.root())
+                elif rst is not None:
+                    rst.root().setParent(None)
+                    self._tree.setRoot(rst.root())
             else:
-                raise RuntimeError('Node', v, 'has two children')
+                # Get the parent
+                vp = vv.getParent()
+                if lst is None and rst is None:
+                    if vp.getLeftSubTree().root() == vv:
+                        vp.setLeftSubTree(lst)
+                    else:
+                        vp.setRightSubTree(rst)
+                elif lst is not None and rst is None:
+                    lst.root().setParent(vp)
+                    if vp.getLeftSubTree().root() == vv:
+                        vp.setLeftSubTree(lst)
+                    else:
+                        vp.setRightSubTree(lst)
+                elif lst is None and rst is not None:
+                    rst.root().setParent(vp)
+                    if vp.getLeftSubTree().root() == vv:
+                        vp.setLeftSubTree(rst)
+                    else:
+                        vp.setRightSubTree(rst)
+                else:
+                    raise RuntimeError('Node', v, 'has two children')
             return element
         else:
             raise RuntimeError('Node', v, 'is not in the tree')
 
     def attach(self, v, t1, t2):
-        vv = BinaryTree.__getNode(self.__tree.root(), v)
+        vv = BinaryTree._getNode(self._tree.root(), v)
         if vv is not None:
             if vv.getLeftSubTree() is None and vv.getRightSubTree() is None:
                 vv.setLeftSubTree(t1)
