@@ -4,7 +4,6 @@ import binaryTree as BT
 class BinarySearchTree(BT.manipulateBinaryTree):
     """Inherits from a Binary Tree
     """
-
     def __init__(self):
         """The constructor for the class, does nothing
 

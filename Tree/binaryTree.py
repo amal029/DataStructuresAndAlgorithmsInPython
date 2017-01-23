@@ -76,6 +76,7 @@ class Node:
         self._element = element
         self._lc = lc
         self._rc = rc
+        self._height = None
 
     def setParent(self, parent):
         self._parent = parent
