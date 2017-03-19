@@ -27,7 +27,7 @@ vector<int*> permute (int* set, unsigned size) {
 	int* ttemp = (int*) malloc (size * sizeof (int));
 	// FIXME: Something is wrong here.
 	for (unsigned y=0; y<size; y++)
-	  ttemp[y] = (y == 0) ? temp[0] : (*it)[y];
+	  ttemp[y] = (y == 0) ? temp[0] : *((*it)+y);
 	free(*it);
 	perms.push_back(ttemp);
       }
