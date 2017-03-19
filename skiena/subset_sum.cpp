@@ -41,10 +41,6 @@ int main(void)
   // First sort out the set.
   set = mqsort(set);
   cout << "sorted, size: " << set.size() << endl;
-  // for (vector<int>::iterator it = set.begin(); it != set.end(); it++) {
-  //   cout << *it << (it < ret.end() ? "" : ",");
-  // }
-  // cout << endl;
   // sort(set.begin(), set.end());
 
   // Now start subtracting the sum from the largest value if sum is not

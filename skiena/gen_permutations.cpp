@@ -1,8 +1,9 @@
+// FIXME: It does note generate all permuations.
 #include <iostream>
 #include <vector>
 using namespace std;
 
-#define SIZE 10
+#define SIZE 5
 
 int main(void){
   int set[SIZE];
@@ -62,6 +63,7 @@ int main(void){
     for (int j=0; j<SIZE; j++) {
       cout << (*it)[j] << (j < SIZE-1 ? "," : "");
     }
+    free(*it);
     cout << "}" << endl;
   }
 
