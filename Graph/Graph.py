@@ -29,7 +29,7 @@ class Graph:
                      for (s, d) in self.vdict[v.name].neighbors])
 
     def __opposites(self, v):
-        """This method gives all the neighbor vertices of the vertex v.
+        """This method gives all the neighbour vertices of the vertex v.
 
         """
         return [self.vdict[d] if d != v.name else self.vdict[s]

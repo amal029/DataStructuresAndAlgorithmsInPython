@@ -1,7 +1,7 @@
 import abc
 
 
-class SQ(abc.ABC):
+class SQ(metaclass=abc.ABCMeta):
 
     """This is the abstract class that should be implemented by the Stack
     and Queue ADTs.

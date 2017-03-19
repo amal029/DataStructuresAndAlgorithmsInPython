@@ -65,6 +65,8 @@ def dijkstra(graph, v):
 
 
 def topological_sort(g):
+    """topological sort
+    """
     # First do some pre-processing
     if not g.directed:
         return []
