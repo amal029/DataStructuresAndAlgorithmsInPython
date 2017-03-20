@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include <cstdlib>
+#include <array>
 using namespace std;
 
 #define SIZE 5
@@ -20,14 +22,14 @@ vector<int*> permute (int* set, unsigned size) {
     }
 
     if (size-1 > 3) {
-      cout << "entering permute, size-1: " << size-1 << endl;
       vector<int*> pperm = permute (temp+1, size-1);
       // append the temp[0] to start of the returned values.
       for (auto it = pperm.begin(); it != pperm.end(); it++) {
 	int* ttemp = (int*) malloc (size * sizeof (int));
 	// FIXME: Something is wrong here.
+	ttemp[0] = temp[0];
 	for (unsigned y=0; y<size; y++)
-	  ttemp[y] = (y == 0) ? temp[0] : *((*it)+y);
+	  ttemp[y+1] = (*it)[y];
 	free(*it);
 	perms.push_back(ttemp);
       }

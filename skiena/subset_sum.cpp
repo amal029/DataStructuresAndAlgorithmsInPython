@@ -40,19 +40,19 @@ int main(void)
 
   // First sort out the set.
   set = mqsort(set);
-  cout << "sorted, size: " << set.size() << endl;
+  // cout << "sorted, size: " << set.size() << endl;
   // sort(set.begin(), set.end());
 
   // Now start subtracting the sum from the largest value if sum is not
   // already in the set.
   while (sum > 0 && set.size() > 0) {
     vector<int>::iterator to_add;
-    if (*set.end() == sum) to_add = set.end();
-    else if ((to_add = find(set.begin(), set.end(), sum)) != set.end()) ;
+    // if (*(set.end()-1) == sum) to_add = set.end();
+    if ((to_add = find(set.begin(), set.end(), sum)) != set.end()) ;
     else {
       // Find the largest int that when subtracted from sum does not
       // make it less than zero.
-      vector<int>::iterator _rit = set.end();
+      vector<int>::iterator _rit = set.end()-1;
       do
 	{
 	  if (sum - *_rit > 0) {
