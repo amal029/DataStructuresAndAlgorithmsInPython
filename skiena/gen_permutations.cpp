@@ -1,4 +1,3 @@
-// FIXME: Something is wrong in the copy to ttemp.
 #include <iostream>
 #include <vector>
 #include <cstring>
@@ -26,7 +25,6 @@ vector<int*> permute (int* set, unsigned size) {
       // append the temp[0] to start of the returned values.
       for (auto it = pperm.begin(); it != pperm.end(); it++) {
 	int* ttemp = (int*) malloc (size * sizeof (int));
-	// FIXME: Something is wrong here.
 	ttemp[0] = temp[0];
 	for (unsigned y=0; y<size; y++)
 	  ttemp[y+1] = (*it)[y];
