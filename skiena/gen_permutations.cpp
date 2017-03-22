@@ -5,7 +5,7 @@
 #include <array>
 using namespace std;
 
-#define SIZE 5
+#define SIZE 9
 
 
 vector<int*> permute (int* set, unsigned size) {
@@ -28,8 +28,11 @@ vector<int*> permute (int* set, unsigned size) {
 	ttemp[0] = temp[0];
 	for (unsigned y=0; y<size; y++)
 	  ttemp[y+1] = (*it)[y];
-	free(*it);
 	perms.push_back(ttemp);
+	// Free things here
+	// for (auto it = pperm.begin(); it != pperm.end(); it++) {
+	//   free(*it);
+	// }
       }
     }
     else{
