@@ -1,4 +1,4 @@
-#include "Graph.h"
+#include "graph.hpp"
 #include <stack>
 
 using namespace std;
@@ -8,7 +8,7 @@ shared_ptr<Vertex> Graph::getVertex(std::string name) {
   for (; it != this->vertices.end(); it++) {
     if (it->getName() == name) break;
   }
-  return (it != this->vertices.end()) ? make_shared<Vertex>(*it) : NULL;
+  return (it != this->vertices.end()) ? make_shared<Vertex>(*it) : nullptr;
 
 }
 
@@ -41,8 +41,8 @@ Graph::Graph(vector<tuple<string, int>> vertices,
   }
 }
 
-shared_ptr<Vertex> Edge::opposite(Vertex* v) {
-  if (v->getName() == this->first()->getName())
+shared_ptr<Vertex> Edge::opposite(string v) {
+  if (v == this->first()->getName())
     return this->second();
   else return this->first();
 }
@@ -50,7 +50,7 @@ shared_ptr<Vertex> Edge::opposite(Vertex* v) {
 vector<shared_ptr<Vertex>> Vertex::neighbors() {
   vector<shared_ptr<Vertex>> ret;
   for (auto it = this->incidentEdges.begin(); it != this->incidentEdges.end(); it++) {
-    ret.push_back((*it)->opposite(this));
+    ret.push_back((*it)->opposite(this->getName()));
   }
   return ret;
 }

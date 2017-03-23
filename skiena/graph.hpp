@@ -37,7 +37,7 @@ public:
   inline std::shared_ptr<Vertex> second() const {
     return std::get<1>(this->vertices);
   }
-  std::shared_ptr<Vertex> opposite(Vertex* v) ;
+  std::shared_ptr<Vertex> opposite(std::string) ;
   virtual ~Edge(){}
 
 protected:
