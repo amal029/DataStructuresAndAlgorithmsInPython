@@ -23,22 +23,19 @@ Graph::Graph(vector<tuple<string, int>> vertices,
   for (auto it = vertices.begin(); it != vertices.end(); it++)
     this->vertices.push_back(make_shared<Vertex>(get<1>(*it), get<0>(*it)));
 
-  vector<shared_ptr<Edge>> gedges;
   for (auto it = edges.begin(); it != edges.end(); it++)
     this->edges.push_back(make_shared<Edge>(get<2>(*it),
 				       Graph::getVertex(get<0>(*it)),
 				       Graph::getVertex(get<1>(*it))));
-  // Now make the alist for the vertices
+  // Now make the adjacency list for the vertices
   for (auto it = this->vertices.begin(); it != this->vertices.end(); it++) {
     vector<shared_ptr<Edge>> ie;
     for (auto eit = this->edges.begin(); eit != this->edges.end(); eit++) {
       if ((*it)->getName() == (*eit)->second()->getName()
 	  || (*it)->getName() == (*eit)->first()->getName())
 	ie.push_back(*eit);
-	// (*it)->getIEdges().push_back(*eit);
     }
     (*it)->setIEdges(ie);
-    // cout << "name: " << (*it)->getName() << " " << (*it)->getIEdges().size() << endl;
   }
 }
 
@@ -71,7 +68,8 @@ static void doDFS(Graph g, shared_ptr<Vertex> start, F fun) {
       // First get all the neighbors
       shared_ptr<Vertex> n = s.top();
       // Print the name of the node
-      fun(n);
+      fun(n); // XXX: Look this is a lambda (functor in C++ parlance)
+	      // from the argument.
       s.pop(); 			// Very bad stack interface of C++!
       n->setVisited(true);
       vector<shared_ptr<Vertex>> vns = n->neighbors();
@@ -89,26 +87,28 @@ static void doDFS(Graph g, shared_ptr<Vertex> start, F fun) {
 // Topological sort in a directed graph
 template<void (*fun)(shared_ptr<Vertex>)>
 static void topological_sort(Graph g) {
+  if (!g.getDirected()) return;
+
   // First make the degree for the vertex.
   queue<shared_ptr<Vertex>> start_vertices;
   vector<shared_ptr<Vertex>> mvertices = g.getVertices();
   for (auto it = mvertices.begin(); it != mvertices.end(); ++it) {
     vector<shared_ptr<Edge>> ves = (*it)->getIEdges();
     for (auto eit = ves.begin(); eit != ves.end(); ++eit) {
-      // Increment your degree if you are the second in the incidentedge
+      // Increment your degree if you are the second in the incident-edge
       if ((*eit)->second()->getName() == (*it)->getName())
 	(*it)->degree += 1;
     }
     if ((*it)->degree == 0) start_vertices.push(g.getVertex((*it)->getName()));
   }
+  // Now we can start going through and doing the actual topological sort.
   do
     {
       // Process vertices
       shared_ptr<Vertex> el = start_vertices.front();
       start_vertices.pop(); 	// C++'s horrible API!
-      fun(el);
-      // We can call the function on the damn element.
-
+      fun(el); // XXX: Look this is a function pointer from the
+	       // template argument.
 
       // Get all its neighbors and if their degree is 0, then push
       // them onto the queue.
@@ -119,7 +119,6 @@ static void topological_sort(Graph g) {
       }
     } while (!start_vertices.empty());
 
-  // Now we can start going through and doing the actual topological sort.
 }
 
 // TODO: shortest path and MST together
@@ -139,12 +138,16 @@ int main(void)
   Graph g(vertices, edges, false);
   vector<shared_ptr<Vertex>> mv = g.getVertices();
 
-  // Print the graph using dfs and a lambda
+  // Print the graph using dfs and a std::copy_backward(std::begin(container), std::end(container), std::end(container));
+
   cout  << "DFS" << endl;
   // Here lambda is most likely not inlined.
   doDFS(g, g.getVertex("a"), [](shared_ptr<Vertex> x) -> void {cout << x->getName() << endl;});
 
-  // Do topological sort, if it works.
+  // make the graph directed.
+  g.setDirected(true);
+
+  // Do topological sort. 
   cout  << "Topological sort" << endl;
   // Here print should be inlined -- passing print as a function pointer
   // at compile time as a template argument.

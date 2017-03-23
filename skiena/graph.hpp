@@ -54,14 +54,17 @@ public:
 	std::vector<std::tuple<std::string, std::string, int>>,
 	bool directed);
   std::shared_ptr<Vertex> getVertex(std::string);
+  inline bool getDirected () const {return directed;}
+  inline void setDirected (bool value) {directed = value;}
   inline std::vector<std::shared_ptr<Vertex>> getVertices() const {return this->vertices;}
   inline std::vector<std::shared_ptr<Edge>> getEdges() const {return this->edges;}
   inline void resetVisited() {
     // Reset all the visited bools.
-    for (auto it = vertices.begin(); it != vertices.end(); it++)
-      (*it)->setVisited(false);
+    std::for_each(std::begin(vertices), std::end(vertices),
+		  [](std::shared_ptr<Vertex> x) {x->setVisited(false);});
+
   }
-  virtual ~Graph(){}
+  virtual ~Graph(){std::cout << "Deleting graph" << std::endl;}
 
 private:
   bool directed;
