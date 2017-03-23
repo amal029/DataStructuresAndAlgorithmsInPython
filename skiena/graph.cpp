@@ -25,15 +25,11 @@ Graph::Graph(vector<tuple<string, int>> vertices,
 
   vector<shared_ptr<Edge>> gedges;
   for (auto it = edges.begin(); it != edges.end(); it++)
-    gedges.push_back(make_shared<Edge>(get<2>(*it),
+    this->edges.push_back(make_shared<Edge>(get<2>(*it),
 				       Graph::getVertex(get<0>(*it)),
 				       Graph::getVertex(get<1>(*it))));
-  this->edges = gedges;
-
   // Now make the alist for the vertices
   for (auto it = this->vertices.begin(); it != this->vertices.end(); it++) {
-    // cout << "adding edges" << endl;
-    // cout << (*it)->getName() << endl;
     vector<shared_ptr<Edge>> iEdges;
     for (auto eit = this->edges.begin(); eit != this->edges.end(); eit++) {
       if ((*it)->getName() == (*eit)->second()->getName()
@@ -90,7 +86,7 @@ static void doDFS(Graph g, shared_ptr<Vertex> start, void (*fun)(A...)) {
 
 // Topological sort in a directed graph
 template<typename... A>
-void topological_sort(Graph g, void (*fun) (A...)) {
+static void topological_sort(Graph g, void (*fun) (A...)) {
   // First make the degree for the vertex.
   queue<shared_ptr<Vertex>> start_vertices;
   vector<shared_ptr<Vertex>> mvertices = g.getVertices();
@@ -136,7 +132,12 @@ int main(void)
 
   // This is the graph.
   Graph g(vertices, edges, false);
+  // vector<shared_ptr<Vertex>> mv = g.getVertices();
 
+  // // Just checking the ref-count.
+  // for (auto it = mv.begin(); it != mv.end(); ++it) {
+  //   cout << (*it).use_count() << endl;
+  // }
   // Print the graph using dfs and a lambda
   cout  << "DFS" << endl;
   doDFS<string>(g, g.getVertex("a"), &print);
@@ -144,6 +145,12 @@ int main(void)
   // Do topological sort, if it works.
   cout  << "Topological sort" << endl;
   topological_sort(g, print);
+
+
+  // // Just checking the ref-count.
+  // for (auto it = mv.begin(); it != mv.end(); ++it) {
+  //   cout << (*it).use_count() << endl;
+  // }
 
   return 0;
 }

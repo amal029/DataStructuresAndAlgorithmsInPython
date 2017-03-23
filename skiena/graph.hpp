@@ -8,7 +8,7 @@ class Vertex
 {
 public:
   Vertex(int weight, std::string name) : weight(weight), name(name) {}
-  virtual ~Vertex(){}
+  virtual ~Vertex(){std::cout << "deleting vertex: " << name << std::endl;}
   std::string getName() const {return this->name;}
   inline std::vector<std::shared_ptr<Edge>>getIEdges() const {return this->incidentEdges;}
   inline void setIEdges(std::vector<std::shared_ptr<Edge>> e) {this->incidentEdges  = e;}
@@ -39,7 +39,7 @@ public:
     return std::get<1>(this->vertices);
   }
   std::shared_ptr<Vertex> opposite(std::string) ;
-  virtual ~Edge(){}
+  virtual ~Edge(){std::cout << "deleting edge!" << std::endl;}
 
 protected:
   std::tuple<std::shared_ptr<Vertex>, std::shared_ptr<Vertex>> vertices;
