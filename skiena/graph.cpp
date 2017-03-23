@@ -33,13 +33,9 @@ Graph::Graph(vector<tuple<string, int>> vertices,
   for (auto it = this->vertices.begin(); it != this->vertices.end(); it++) {
     vector<shared_ptr<Edge>> iEdges;
     for (auto eit = this->edges.begin(); eit != this->edges.end(); eit++) {
-      if (it->getName() == eit->second()->getName())
+      if (it->getName() == eit->second()->getName()
+	  || it->getName() == eit->first()->getName())
 	iEdges.push_back(make_shared<Edge>(*eit));	
-      else if (!this->directed) {
-	if (it->getName() == eit->first()->getName()) {
-	  iEdges.push_back(make_shared<Edge>(*eit));
-	}
-      }
     }
     it->setIEdges(iEdges);
   }
