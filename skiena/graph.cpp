@@ -61,8 +61,8 @@ void print(shared_ptr<Vertex> v) {
 }
 
 // DFS for the graph with a function.
-template <void (*fun)(shared_ptr<Vertex>)>
-static void doDFS(Graph g, shared_ptr<Vertex> start) {
+template<typename F>
+static void doDFS(Graph g, shared_ptr<Vertex> start, F fun) {
   stack<shared_ptr<Vertex>> s;
   s.push(start);
 
@@ -143,17 +143,18 @@ int main(void)
   // }
   // Print the graph using dfs and a lambda
   cout  << "DFS" << endl;
-  doDFS<print>(g, g.getVertex("a"));
+  // Here lambda is most likely not inlined.
+  doDFS(g, g.getVertex("a"), [](shared_ptr<Vertex> x) -> void {cout << x->getName() << endl;});
 
   // Do topological sort, if it works.
   cout  << "Topological sort" << endl;
+  // Here print should be inlined
   topological_sort<print>(g);
 
-
   // // Just checking the ref-count.
-  for (auto it = mv.begin(); it != mv.end(); ++it) {
-    cout << (*it).use_count() << endl;
-  }
+  // for (auto it = mv.begin(); it != mv.end(); ++it) {
+  //   cout << (*it).use_count() << endl;
+  // }
 
   return 0;
 }
