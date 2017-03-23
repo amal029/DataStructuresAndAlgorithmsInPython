@@ -124,6 +124,8 @@ static void topological_sort(Graph g) {
 
 // TODO: shortest path and MST together
 
+// TODO: Independent sets (opposite of cliques).
+
 int main(void)
 {
   // Test program.
@@ -137,10 +139,6 @@ int main(void)
   Graph g(vertices, edges, false);
   vector<shared_ptr<Vertex>> mv = g.getVertices();
 
-  // // Just checking the ref-count.
-  // for (auto it = mv.begin(); it != mv.end(); ++it) {
-  //   cout << (*it).use_count() << endl;
-  // }
   // Print the graph using dfs and a lambda
   cout  << "DFS" << endl;
   // Here lambda is most likely not inlined.
@@ -148,13 +146,9 @@ int main(void)
 
   // Do topological sort, if it works.
   cout  << "Topological sort" << endl;
-  // Here print should be inlined
+  // Here print should be inlined -- passing print as a function pointer
+  // at compile time as a template argument.
   topological_sort<print>(g);
-
-  // // Just checking the ref-count.
-  // for (auto it = mv.begin(); it != mv.end(); ++it) {
-  //   cout << (*it).use_count() << endl;
-  // }
 
   return 0;
 }
