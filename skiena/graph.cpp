@@ -30,14 +30,15 @@ Graph::Graph(vector<tuple<string, int>> vertices,
 				       Graph::getVertex(get<1>(*it))));
   // Now make the alist for the vertices
   for (auto it = this->vertices.begin(); it != this->vertices.end(); it++) {
-    vector<shared_ptr<Edge>> iEdges;
+    vector<shared_ptr<Edge>> ie;
     for (auto eit = this->edges.begin(); eit != this->edges.end(); eit++) {
       if ((*it)->getName() == (*eit)->second()->getName()
 	  || (*it)->getName() == (*eit)->first()->getName())
-	iEdges.push_back(*eit);	
+	ie.push_back(*eit);
+	// (*it)->getIEdges().push_back(*eit);
     }
-    (*it)->setIEdges(iEdges);
-    // cout << (*it)->getIEdges().size() << endl;
+    (*it)->setIEdges(ie);
+    // cout << "name: " << (*it)->getName() << " " << (*it)->getIEdges().size() << endl;
   }
 }
 
@@ -73,7 +74,8 @@ static void doDFS(Graph g, shared_ptr<Vertex> start, void (*fun)(A...)) {
       fun(n->getName());
       s.pop(); 			// Very bad stack interface of C++!
       n->setVisited(true);
-      for (auto it = n->neighbors().begin(); it != n->neighbors().end(); it++) {
+      vector<shared_ptr<Vertex>> vns = n->neighbors();
+      for (auto it = vns.begin(); it != vns.end(); it++) {
 	if (!(*it)->getVisited()) {
 	  s.push(*it);
 	  (*it)->setVisited(true);
@@ -110,7 +112,8 @@ static void topological_sort(Graph g, void (*fun) (A...)) {
 
       // Get all its neighbors and if their degree is 0, then push
       // them onto the queue.
-      for (auto it = el->neighbors().begin(); it != el->neighbors().end(); ++it) {
+      vector<shared_ptr<Vertex>> eln = el->neighbors();
+      for (auto it = eln.begin(); it != eln.end(); ++it) {
 	(*it)->degree -= 1;
 	if ((*it)->degree == 0) start_vertices.push(*it);
       }
@@ -132,7 +135,7 @@ int main(void)
 
   // This is the graph.
   Graph g(vertices, edges, false);
-  // vector<shared_ptr<Vertex>> mv = g.getVertices();
+  vector<shared_ptr<Vertex>> mv = g.getVertices();
 
   // // Just checking the ref-count.
   // for (auto it = mv.begin(); it != mv.end(); ++it) {

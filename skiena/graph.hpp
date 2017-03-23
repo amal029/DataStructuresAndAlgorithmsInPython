@@ -10,8 +10,8 @@ public:
   Vertex(int weight, std::string name) : weight(weight), name(name) {}
   virtual ~Vertex(){std::cout << "deleting vertex: " << name << std::endl;}
   std::string getName() const {return this->name;}
-  inline std::vector<std::shared_ptr<Edge>>getIEdges() const {return this->incidentEdges;}
-  inline void setIEdges(std::vector<std::shared_ptr<Edge>> e) {this->incidentEdges  = e;}
+  inline std::vector<std::shared_ptr<Edge>>getIEdges() const {return incidentEdges;}
+  inline void setIEdges(std::vector<std::shared_ptr<Edge>> e) {incidentEdges  = e;}
   std::vector<std::shared_ptr<Vertex>> neighbors();
   inline bool getVisited() const {return visited;}
   inline void setVisited(bool v) {visited = v;}
