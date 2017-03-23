@@ -1,14 +1,15 @@
 #include "graph.hpp"
 #include <stack>
+#include <queue>
 
 using namespace std;
 
 shared_ptr<Vertex> Graph::getVertex(std::string name) {
   auto it = this->vertices.begin();
   for (; it != this->vertices.end(); it++) {
-    if (it->getName() == name) break;
+    if ((*it)->getName() == name) break;
   }
-  return (it != this->vertices.end()) ? make_shared<Vertex>(*it) : nullptr;
+  return (it != this->vertices.end()) ? *it : nullptr;
 
 }
 
@@ -20,24 +21,27 @@ Graph::Graph(vector<tuple<string, int>> vertices,
 
   // Build the vertices
   for (auto it = vertices.begin(); it != vertices.end(); it++)
-    this->vertices.push_back(Vertex(get<1>(*it), get<0>(*it)));
+    this->vertices.push_back(make_shared<Vertex>(get<1>(*it), get<0>(*it)));
 
-  vector<Edge> gedges;
+  vector<shared_ptr<Edge>> gedges;
   for (auto it = edges.begin(); it != edges.end(); it++)
-    gedges.push_back(Edge(get<2>(*it),
-			  Graph::getVertex(get<0>(*it)),
-			  Graph::getVertex(get<1>(*it))));
+    gedges.push_back(make_shared<Edge>(get<2>(*it),
+				       Graph::getVertex(get<0>(*it)),
+				       Graph::getVertex(get<1>(*it))));
   this->edges = gedges;
 
   // Now make the alist for the vertices
   for (auto it = this->vertices.begin(); it != this->vertices.end(); it++) {
+    // cout << "adding edges" << endl;
+    // cout << (*it)->getName() << endl;
     vector<shared_ptr<Edge>> iEdges;
     for (auto eit = this->edges.begin(); eit != this->edges.end(); eit++) {
-      if (it->getName() == eit->second()->getName()
-	  || it->getName() == eit->first()->getName())
-	iEdges.push_back(make_shared<Edge>(*eit));	
+      if ((*it)->getName() == (*eit)->second()->getName()
+	  || (*it)->getName() == (*eit)->first()->getName())
+	iEdges.push_back(*eit);	
     }
-    it->setIEdges(iEdges);
+    (*it)->setIEdges(iEdges);
+    // cout << (*it)->getIEdges().size() << endl;
   }
 }
 
@@ -56,12 +60,12 @@ vector<shared_ptr<Vertex>> Vertex::neighbors() {
 }
 
 void print(string name) {
-  cout << name << endl;
+  cout << " name: " << name << endl;
 }
 
 // DFS for the graph with a function.
-template <typename T, typename... A>
-static void doDFS(Graph g, shared_ptr<Vertex> start, T (*fun)(A... args)) {
+template <typename... A>
+static void doDFS(Graph g, shared_ptr<Vertex> start, void (*fun)(A...)) {
   stack<shared_ptr<Vertex>> s;
   s.push(start);
 
@@ -72,8 +76,8 @@ static void doDFS(Graph g, shared_ptr<Vertex> start, T (*fun)(A... args)) {
       // Print the name of the node
       fun(n->getName());
       s.pop(); 			// Very bad stack interface of C++!
-      vector<shared_ptr<Vertex>> ns = n->neighbors();
-      for (auto it = ns.begin(); it != ns.end(); it++) {
+      n->setVisited(true);
+      for (auto it = n->neighbors().begin(); it != n->neighbors().end(); it++) {
 	if (!(*it)->getVisited()) {
 	  s.push(*it);
 	  (*it)->setVisited(true);
@@ -84,7 +88,40 @@ static void doDFS(Graph g, shared_ptr<Vertex> start, T (*fun)(A... args)) {
   g.resetVisited();
 }
 
-// TODO: Topological sort in a directed graph
+// Topological sort in a directed graph
+template<typename... A>
+void topological_sort(Graph g, void (*fun) (A...)) {
+  // First make the degree for the vertex.
+  queue<shared_ptr<Vertex>> start_vertices;
+  vector<shared_ptr<Vertex>> mvertices = g.getVertices();
+  for (auto it = mvertices.begin(); it != mvertices.end(); ++it) {
+    vector<shared_ptr<Edge>> ves = (*it)->getIEdges();
+    for (auto eit = ves.begin(); eit != ves.end(); ++eit) {
+      // Increment your degree if you are the second in the incidentedge
+      if ((*eit)->second()->getName() == (*it)->getName())
+	(*it)->degree += 1;
+    }
+    if ((*it)->degree == 0) start_vertices.push(g.getVertex((*it)->getName()));
+  }
+  do
+    {
+      // Process vertices
+      shared_ptr<Vertex> el = start_vertices.front();
+      start_vertices.pop(); 	// C++'s horrible API!
+      fun(el->getName());
+      // We can call the function on the damn element.
+
+
+      // Get all its neighbors and if their degree is 0, then push
+      // them onto the queue.
+      for (auto it = el->neighbors().begin(); it != el->neighbors().end(); ++it) {
+	(*it)->degree -= 1;
+	if ((*it)->degree == 0) start_vertices.push(*it);
+      }
+    } while (!start_vertices.empty());
+
+  // Now we can start going through and doing the actual topological sort.
+}
 
 // TODO: shortest path and MST together
 
@@ -101,7 +138,12 @@ int main(void)
   Graph g(vertices, edges, false);
 
   // Print the graph using dfs and a lambda
-  doDFS<void, string>(g, g.getVertex("a"), &print);
+  cout  << "DFS" << endl;
+  doDFS<string>(g, g.getVertex("a"), &print);
+
+  // Do topological sort, if it works.
+  cout  << "Topological sort" << endl;
+  topological_sort(g, print);
 
   return 0;
 }

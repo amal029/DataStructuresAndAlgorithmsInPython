@@ -15,6 +15,7 @@ public:
   std::vector<std::shared_ptr<Vertex>> neighbors();
   inline bool getVisited() const {return visited;}
   inline void setVisited(bool v) {visited = v;}
+  unsigned degree = 0;
   
 protected:
   int weight;
@@ -53,17 +54,17 @@ public:
 	std::vector<std::tuple<std::string, std::string, int>>,
 	bool directed);
   std::shared_ptr<Vertex> getVertex(std::string);
-  inline std::vector<Vertex> getVertices() const {return this->vertices;}
-  inline std::vector<Edge> getEdges() const {return this->edges;}
+  inline std::vector<std::shared_ptr<Vertex>> getVertices() const {return this->vertices;}
+  inline std::vector<std::shared_ptr<Edge>> getEdges() const {return this->edges;}
   inline void resetVisited() {
     // Reset all the visited bools.
     for (auto it = vertices.begin(); it != vertices.end(); it++)
-      it->setVisited(false);
+      (*it)->setVisited(false);
   }
   virtual ~Graph(){}
 
 private:
   bool directed;
-  std::vector<Vertex> vertices;
-  std::vector<Edge> edges;
+  std::vector<std::shared_ptr<Vertex>> vertices;
+  std::vector<std::shared_ptr<Edge>> edges;
 };
