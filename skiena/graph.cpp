@@ -151,9 +151,9 @@ int main(void)
 
 
   // // Just checking the ref-count.
-  // for (auto it = mv.begin(); it != mv.end(); ++it) {
-  //   cout << (*it).use_count() << endl;
-  // }
+  for (auto it = mv.begin(); it != mv.end(); ++it) {
+    cout << (*it).use_count() << endl;
+  }
 
   return 0;
 }

@@ -33,16 +33,16 @@ public:
     std::get<1>(this->vertices) = e;
   }
   inline std::shared_ptr<Vertex> first() const {
-    return std::get<0>(this->vertices);
+    return std::get<0>(this->vertices).lock();
   }
   inline std::shared_ptr<Vertex> second() const {
-    return std::get<1>(this->vertices);
+    return std::get<1>(this->vertices).lock();
   }
   std::shared_ptr<Vertex> opposite(std::string) ;
   virtual ~Edge(){std::cout << "deleting edge!" << std::endl;}
 
 protected:
-  std::tuple<std::shared_ptr<Vertex>, std::shared_ptr<Vertex>> vertices;
+  std::tuple<std::weak_ptr<Vertex>, std::weak_ptr<Vertex>> vertices;
   int weight;
 };
 
