@@ -56,13 +56,13 @@ vector<shared_ptr<Vertex>> Vertex::neighbors() {
   return ret;
 }
 
-void print(string name) {
-  cout << " name: " << name << endl;
+void print(shared_ptr<Vertex> v) {
+  cout << " name: " << v->getName() << endl;
 }
 
 // DFS for the graph with a function.
-template <typename... A>
-static void doDFS(Graph g, shared_ptr<Vertex> start, void (*fun)(A...)) {
+template <void (*fun)(shared_ptr<Vertex>)>
+static void doDFS(Graph g, shared_ptr<Vertex> start) {
   stack<shared_ptr<Vertex>> s;
   s.push(start);
 
@@ -71,7 +71,7 @@ static void doDFS(Graph g, shared_ptr<Vertex> start, void (*fun)(A...)) {
       // First get all the neighbors
       shared_ptr<Vertex> n = s.top();
       // Print the name of the node
-      fun(n->getName());
+      fun(n);
       s.pop(); 			// Very bad stack interface of C++!
       n->setVisited(true);
       vector<shared_ptr<Vertex>> vns = n->neighbors();
@@ -87,8 +87,8 @@ static void doDFS(Graph g, shared_ptr<Vertex> start, void (*fun)(A...)) {
 }
 
 // Topological sort in a directed graph
-template<typename... A>
-static void topological_sort(Graph g, void (*fun) (A...)) {
+template<void (*fun)(shared_ptr<Vertex>)>
+static void topological_sort(Graph g) {
   // First make the degree for the vertex.
   queue<shared_ptr<Vertex>> start_vertices;
   vector<shared_ptr<Vertex>> mvertices = g.getVertices();
@@ -106,7 +106,7 @@ static void topological_sort(Graph g, void (*fun) (A...)) {
       // Process vertices
       shared_ptr<Vertex> el = start_vertices.front();
       start_vertices.pop(); 	// C++'s horrible API!
-      fun(el->getName());
+      fun(el);
       // We can call the function on the damn element.
 
 
@@ -143,11 +143,11 @@ int main(void)
   // }
   // Print the graph using dfs and a lambda
   cout  << "DFS" << endl;
-  doDFS<string>(g, g.getVertex("a"), &print);
+  doDFS<print>(g, g.getVertex("a"));
 
   // Do topological sort, if it works.
   cout  << "Topological sort" << endl;
-  topological_sort(g, print);
+  topological_sort<print>(g);
 
 
   // // Just checking the ref-count.
