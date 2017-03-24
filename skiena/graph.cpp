@@ -4,7 +4,7 @@
 
 using namespace std;
 
-shared_ptr<Vertex> Graph::getVertex(std::string name) {
+shared_ptr<Vertex> Graph::getVertex(std::string name) const {
   auto it = this->vertices.begin();
   for (; it != this->vertices.end(); it++) {
     if ((*it)->getName() == name) break;
@@ -123,7 +123,7 @@ static void topological_sort(Graph g) {
 
 // TODO: shortest path and MST together
 
-// TODO: Independent sets (opposite of cliques).
+// TODO: Independent sets (dual of cliques).
 
 int main(void)
 {
@@ -141,7 +141,7 @@ int main(void)
   // Print the graph using dfs and a std::copy_backward(std::begin(container), std::end(container), std::end(container));
 
   cout  << "DFS" << endl;
-  // Here lambda is most likely not inlined.
+  // Here lambda is most likely also inlined.
   doDFS(g, g.getVertex("a"), [](shared_ptr<Vertex> x) -> void {cout << x->getName() << endl;});
 
   // make the graph directed.

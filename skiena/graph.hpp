@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <tuple>
+#include <memory>
+#include <algorithm>
 
 class Edge;
 
@@ -53,7 +55,7 @@ public:
   Graph(std::vector<std::tuple<std::string, int>>,
 	std::vector<std::tuple<std::string, std::string, int>>,
 	bool directed);
-  std::shared_ptr<Vertex> getVertex(std::string);
+  std::shared_ptr<Vertex> getVertex(std::string) const;
   inline bool getDirected () const {return directed;}
   inline void setDirected (bool value) {directed = value;}
   inline std::vector<std::shared_ptr<Vertex>> getVertices() const {return this->vertices;}
