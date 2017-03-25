@@ -28,8 +28,8 @@ Graph::Graph(vector<tuple<string, int>> vertices,
 
   for (auto it = edges.begin(); it != edges.end(); it++)
     this->edges.push_back(make_shared<Edge>(get<2>(*it),
-				       Graph::getVertex(get<0>(*it)),
-				       Graph::getVertex(get<1>(*it))));
+					    Graph::getVertex(get<0>(*it)),
+					    Graph::getVertex(get<1>(*it))));
   // Now make the adjacency list for the vertices
   for (auto it = this->vertices.begin(); it != this->vertices.end(); it++) {
     vector<shared_ptr<Edge>> ie;
@@ -56,13 +56,13 @@ vector<shared_ptr<Vertex>> Vertex::neighbors() {
   return ret;
 }
 
-void print(shared_ptr<Vertex> v) {
+void print(Vertex* v) {
   cout << " name: " << v->getName() << endl;
 }
 
 // DFS for the graph with a function.
 template<typename F>
-static void doDFS(Graph g, shared_ptr<Vertex> start, F fun) {
+static void doDFS(Graph& g, shared_ptr<Vertex> start, F fun) {
   stack<shared_ptr<Vertex>> s;
   s.push(start);
 
@@ -71,8 +71,8 @@ static void doDFS(Graph g, shared_ptr<Vertex> start, F fun) {
       // First get all the neighbors
       shared_ptr<Vertex> n = s.top();
       // Print the name of the node
-      fun(n); // XXX: Look this is a lambda (functor in C++ parlance)
-	      // from the argument.
+      fun(n.get()); // XXX: Look this is a lambda (functor in C++ parlance)
+      // from the argument.
       s.pop(); 			// Very bad stack interface of C++!
       n->setVisited(true);
       vector<shared_ptr<Vertex>> vns = n->neighbors();
@@ -88,8 +88,8 @@ static void doDFS(Graph g, shared_ptr<Vertex> start, F fun) {
 }
 
 // Topological sort in a directed graph
-template<void (*fun)(shared_ptr<Vertex>)>
-static void topological_sort(Graph g) {
+template<void (*fun)(Vertex*)>
+static void topological_sort(const Graph& g) {
   if (!g.getDirected()) return;
 
   // First make the degree for the vertex.
@@ -110,8 +110,8 @@ static void topological_sort(Graph g) {
       // Process vertices
       shared_ptr<Vertex> el = start_vertices.front();
       start_vertices.pop(); 	// C++'s horrible API!
-      fun(el); // XXX: Look this is a function pointer from the
-	       // template argument.
+      fun(el.get()); // XXX: Look this is a function pointer from the
+      // template argument.
 
       // Get all its neighbors and if their degree is 0, then push
       // them onto the queue.
@@ -124,7 +124,7 @@ static void topological_sort(Graph g) {
 
 }
 
-vector<shared_ptr<Vertex>> mst (shared_ptr<Vertex> p, vector<shared_ptr<Vertex>> gvs) {
+vector<shared_ptr<Vertex>> mst (Vertex* p, vector<shared_ptr<Vertex>> gvs) {
   vector<shared_ptr<Vertex>> ret;
   // XXX: Don't forget to remove the parent from the gvs
   auto it = gvs.begin();
@@ -144,7 +144,7 @@ vector<shared_ptr<Vertex>> mst (shared_ptr<Vertex> p, vector<shared_ptr<Vertex>>
 }
 
 // XXX: shortest path and MST together
-vector<shared_ptr<Vertex>> sp_mst(Graph g, shared_ptr<Vertex> start) {
+vector<Vertex*> sp_mst(const Graph& g, shared_ptr<Vertex> start) {
   // We need to use a priority queue.
   start->dist.first = 0;
 
@@ -179,8 +179,8 @@ vector<shared_ptr<Vertex>> sp_mst(Graph g, shared_ptr<Vertex> start) {
 
   // Build the minimum spanning tree
   vector<shared_ptr<Vertex>> gvs = g.getVertices();
-  vector<shared_ptr<Vertex>> q;
-  q.push_back (start);
+  vector<Vertex*> q;
+  q.push_back (start.get());
 
   // remove start from gvs.
   auto it = gvs.begin();
@@ -193,45 +193,43 @@ vector<shared_ptr<Vertex>> sp_mst(Graph g, shared_ptr<Vertex> start) {
   for (; counter < q.size(); ++counter) {
     auto nn = mst(q[counter], gvs);
     for (auto x: nn)
-      q.push_back(x);
+      q.push_back(x.get());
   }
   return q;
-
 }
 
 // XXX: Independent sets (dual of cliques).
-vector<shared_ptr<Vertex>> independent_sets (Graph g){
-  vector<shared_ptr<Vertex>> ret {};
+vector<Vertex*> independent_sets (const Graph& g){
+  vector<Vertex*> ret {};
   vector<shared_ptr<Vertex>> gvs = g.getVertices();
-  vector<shared_ptr<Edge>> ges = g.getEdges();
   unsigned pcount = 0;
+  vector<Vertex*> fe;
   for (unsigned i = (2 << (gvs.size() - 1))-1; i >=1 ; --i) {
     bitset<N> bb(i);  		// FIXME: This is very annoying in C++
-    vector<shared_ptr<Vertex>> fe;
     // Now just get the length of bits that we need.
     bool possibly_return = true;
     unsigned ccount = 0;
     for (int j = gvs.size()-1; j >= 0; --j)
-      if (j) {
+      if (bb[j]){
 	++ccount;
-	// Now get the edge's opposite and check. 
-	for (auto it = ges.begin(); it != ges.end(); ++it) {
-	  if ((*it)->first()->getName() == gvs[j]->getName()
-	      || (*it)->second()->getName() == gvs[j]->getName()) {
-	    if (find(gvs.begin(), gvs.end(),
-		     (*it)->opposite(gvs[j]->getName())) == gvs.end()) {
-	      possibly_return = false;
-	      break;
-	    }
-	  }
-	}
-	fe.push_back(gvs[j]);
+	fe.push_back(gvs[j].get());
       }
-    // Now check for intersection.
-	if(possibly_return && ccount > pcount) {
-		ret = fe;
-		pcount = ccount;
+    for(unsigned j=0; j < fe.size(); ++j) {
+      // Now get the edge's opposite and check. 
+      vector<shared_ptr<Vertex>> mns = fe[j]->neighbors();
+      for (auto it = mns.begin(); it != mns.end(); ++it) {
+	if (find(fe.begin(), fe.end(), (*it).get()) != fe.end()) {
+	  possibly_return = false;
+	  goto L;
 	}
+      }
+    }
+  L: if(possibly_return && ccount > pcount) {
+      ret = fe;
+      pcount = ccount;
+    }
+    else
+      fe.clear();
   }
   return ret;
 }
@@ -253,7 +251,7 @@ int main(void)
 
   cout  << "DFS" << endl;
   // Here lambda is most likely also inlined.
-  doDFS(g, g.getVertex("a"), [](shared_ptr<Vertex> x) -> void {cout << x->getName() << endl;});
+  doDFS(g, g.getVertex("a"), [](Vertex* x) -> void {cout << x->getName() << endl;});
 
   // make the graph directed.
   g.setDirected(true);
@@ -266,7 +264,7 @@ int main(void)
 
 
   // Dijkstra's shortest path and minimum spanning tree together
-  vector<shared_ptr<Vertex>> tree = sp_mst(g, g.getVertex("a"));
+  vector<Vertex*> tree = sp_mst(g, g.getVertex("a"));
   cout << "Done mst" << "\n";
 
   // Print the tree
@@ -276,7 +274,7 @@ int main(void)
 
 
   // Independent sets
-  vector<shared_ptr<Vertex>> s = independent_sets(g);
+  vector<Vertex*> s = independent_sets(g);
   for (auto x: s)
     cout << x->getName() << " ";
   cout << "\n";
