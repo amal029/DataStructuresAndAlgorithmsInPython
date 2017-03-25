@@ -216,13 +216,6 @@ vector<shared_ptr<Vertex>> independent_sets (Graph g){
   gesv.erase(last, gesv.end()); // removed duplicates.
 
   vector<shared_ptr<Vertex>> intersect;
-  // Now if intersecting gesv and gvs is null then we can just return.
-  set_intersection(gvs.begin(), gvs.end(),
-		   gesv.begin(), gesv.end(),
-		   back_inserter(intersect));
-
-  if(!intersect.empty()) return ret;
-
   // Else we continue.
   // All the connected edges in the graph.
   unsigned pcount = 0;
