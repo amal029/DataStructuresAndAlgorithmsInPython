@@ -221,7 +221,7 @@ vector<shared_ptr<Vertex>> independent_sets (Graph g){
 		   gesv.begin(), gesv.end(),
 		   back_inserter(intersect));
 
-  if(intersect.empty()) return ret;
+  if(!intersect.empty()) return ret;
 
   // Else we continue.
   // All the connected edges in the graph.
@@ -243,7 +243,7 @@ vector<shared_ptr<Vertex>> independent_sets (Graph g){
 
     // Now check if we should insert this in -- we have to go through
     // all, because we are using binary encoding of numbers!!
-    if(intersect.size() == fe.size() && (ccount > pcount))
+    if(!intersect.empty() && (ccount > pcount))
       ret = fe;
   }
   return ret;
