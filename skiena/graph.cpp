@@ -1,6 +1,7 @@
 #include "graph.hpp"
 #include <stack>
 #include <queue>
+#include <algorithm>
 
 using namespace std;
 
@@ -121,7 +122,84 @@ static void topological_sort(Graph g) {
 
 }
 
-// TODO: shortest path and MST together
+vector<shared_ptr<Vertex>> mst (shared_ptr<Vertex> p, vector<shared_ptr<Vertex>> gvs) {
+  vector<shared_ptr<Vertex>> ret;
+  // XXX: Don't forget to remove the parent from the gvs
+  auto it = gvs.begin();
+  vector<decltype(it)> vits;
+  for (; it != gvs.end(); ++it){
+    if ((*it)->dist.second->getName() == p->getName()) {
+      vits.push_back(it);
+      ret.push_back(*it);
+    }
+  }
+
+  // Now delete the indices from gvs.
+  for (auto it = vits.begin(); it != vits.end(); ++it)
+    gvs.erase(*it);
+
+  return ret;
+}
+
+// XXX: shortest path and MST together
+vector<shared_ptr<Vertex>> sp_mst(Graph g, shared_ptr<Vertex> start) {
+  // We need to use a priority queue.
+
+  // Initialize the start vertex distance to zero.
+  start->dist.first = 0;
+  start->dist.second = nullptr;
+
+  // Declare a pq with a comparator.
+  auto comp = [](const shared_ptr<Vertex> e1,
+		 const shared_ptr<Vertex> e2){
+    return e1->dist.first > e2->dist.first;
+  };
+  priority_queue<shared_ptr<Vertex>,
+		 vector<shared_ptr<Vertex>>,
+		 decltype(comp)> pq(comp);
+  pq.push(start);
+
+  do
+    {
+      // First get all the neighbors
+      shared_ptr<Vertex> me = pq.top();
+      vector<shared_ptr<Edge>> ie = me->getIEdges();
+      pq.pop(); 		// remove the top from the pq.
+      // Expand the distance for each neighbor.
+      for(shared_ptr<Edge> x : ie) {
+	shared_ptr<Vertex> men = x->opposite(me->getName());
+	unsigned xw = x->getWeight();
+	if (!men->getVisited() && men->dist.first > me->dist.first + xw) {
+	  men->dist.first = me->dist.first+xw;
+	  men->dist.second = me;
+	  pq.push(men); 	// FIXME: can add same vertex again!
+	}
+      }
+      me->setVisited(true);
+    } while (!pq.empty());
+
+  // Build the minimum spanning tree
+  vector<shared_ptr<Vertex>> gvs = g.getVertices();
+  vector<shared_ptr<Vertex>> q;
+  q.push_back (start);
+
+  // remove start from gvs.
+  auto it = gvs.begin();
+  for ( ; it != gvs.end(); ++it)
+    if ((*it) == start) break;
+  // remove it from gvs.
+  gvs.erase(it);
+
+  unsigned counter = 0;
+  for (; counter < q.size(); ++counter) {
+    auto nn = mst(q[counter], gvs);
+    for (auto x: nn){
+      q.push_back(x);
+    }
+  }
+  return q;
+
+}
 
 // TODO: Independent sets (dual of cliques).
 
@@ -153,7 +231,15 @@ int main(void)
   // at compile time as a template argument.
   topological_sort<print>(g);
 
+
+  // Dijkstra's shortest path and minimum spanning tree together
+  vector<shared_ptr<Vertex>> tree = sp_mst(g, g.getVertex("a"));
+  cout << "Done mst" << "\n";
+
+  // Print the tree
+  for (auto x : tree)
+    cout << x->getName() << " ";
+  cout << "\n";
+
   return 0;
 }
-
-

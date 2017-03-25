@@ -18,6 +18,7 @@ public:
   inline bool getVisited() const {return visited;}
   inline void setVisited(bool v) {visited = v;}
   unsigned degree = 0;
+  std::pair<unsigned, std::shared_ptr<Vertex>> dist {INT_MAX, nullptr};
   
 protected:
   int weight;
@@ -43,9 +44,11 @@ public:
   std::shared_ptr<Vertex> opposite(std::string) ;
   virtual ~Edge(){std::cout << "deleting edge!" << std::endl;}
 
+  inline unsigned getWeight() const {return weight;}
+
 protected:
   std::tuple<std::weak_ptr<Vertex>, std::weak_ptr<Vertex>> vertices;
-  int weight;
+  unsigned weight;
 };
 
 
