@@ -146,6 +146,7 @@ vector<shared_ptr<Vertex>> mst (shared_ptr<Vertex> p, vector<shared_ptr<Vertex>>
 // XXX: shortest path and MST together
 vector<shared_ptr<Vertex>> sp_mst(Graph g, shared_ptr<Vertex> start) {
   // We need to use a priority queue.
+  start->dist.first = 0;
 
   // Declare a pq with a comparator.
   auto comp = [](const shared_ptr<Vertex> e1,
@@ -227,8 +228,10 @@ vector<shared_ptr<Vertex>> independent_sets (Graph g){
 	fe.push_back(gvs[j]);
       }
     // Now check for intersection.
-    if(possibly_return && ccount > pcount)
-      ret = fe;
+	if(possibly_return && ccount > pcount) {
+		ret = fe;
+		pcount = ccount;
+	}
   }
   return ret;
 }
@@ -273,7 +276,10 @@ int main(void)
 
 
   // Independent sets
-  independent_sets(g);
+  vector<shared_ptr<Vertex>> s = independent_sets(g);
+  for (auto x: s)
+    cout << x->getName() << " ";
+  cout << "\n";
 
   return 0;
 }
