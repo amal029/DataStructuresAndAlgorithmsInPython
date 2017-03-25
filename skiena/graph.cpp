@@ -3,6 +3,8 @@
 #include <queue>
 #include <algorithm>
 
+#define N 32
+
 using namespace std;
 
 shared_ptr<Vertex> Graph::getVertex(std::string name) const {
@@ -193,15 +195,21 @@ vector<shared_ptr<Vertex>> sp_mst(Graph g, shared_ptr<Vertex> start) {
   unsigned counter = 0;
   for (; counter < q.size(); ++counter) {
     auto nn = mst(q[counter], gvs);
-    for (auto x: nn){
+    for (auto x: nn)
       q.push_back(x);
-    }
   }
   return q;
 
 }
 
-// TODO: Independent sets (dual of cliques).
+// XXX: Independent sets (dual of cliques).
+vector<shared_ptr<Vertex>> independent_sets (Graph g){
+  vector<shared_ptr<Vertex>> ret;
+  vector<shared_ptr<Vertex>> gvs = g.getVertices();
+  vector<shared_ptr<Edge>> ges = g.getEdges();
+
+  return ret;
+}
 
 int main(void)
 {
@@ -240,6 +248,10 @@ int main(void)
   for (auto x : tree)
     cout << x->getName() << " ";
   cout << "\n";
+
+
+  // Independent sets
+  independent_sets(g);
 
   return 0;
 }
