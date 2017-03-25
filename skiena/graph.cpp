@@ -204,10 +204,48 @@ vector<shared_ptr<Vertex>> sp_mst(Graph g, shared_ptr<Vertex> start) {
 
 // XXX: Independent sets (dual of cliques).
 vector<shared_ptr<Vertex>> independent_sets (Graph g){
-  vector<shared_ptr<Vertex>> ret;
+  vector<shared_ptr<Vertex>> ret {};
   vector<shared_ptr<Vertex>> gvs = g.getVertices();
   vector<shared_ptr<Edge>> ges = g.getEdges();
+  vector<shared_ptr<Vertex>> gesv;
+  for (auto it = ges.begin(); it != ges.end(); ++it) {
+    gesv.push_back((*it)->first());
+    gesv.push_back((*it)->second());
+  }
+  auto last = unique(gesv.begin(), gesv.end());
+  gesv.erase(last, gesv.end()); // removed duplicates.
 
+  vector<shared_ptr<Vertex>> intersect;
+  // Now if intersecting gesv and gvs is null then we can just return.
+  set_intersection(gvs.begin(), gvs.end(),
+		   gesv.begin(), gesv.end(),
+		   back_inserter(intersect));
+
+  if(intersect.empty()) return ret;
+
+  // Else we continue.
+  // All the connected edges in the graph.
+  unsigned pcount = 0;
+  for (unsigned i = (2 << (gvs.size() - 1))-1; i >=1 ; --i) {
+    bitset<N> bb(i);  		// FIXME: This is very annoying in C++
+    vector<shared_ptr<Vertex>> fe;
+    // Now just get the length of bits that we need.
+    unsigned ccount = 0;
+    for (int j = gvs.size()-1; j >= 0; --j)
+      if (j == 1) {
+	++ccount;
+	fe.push_back(gvs[j]);
+      }
+    // Now check for intersection.
+    set_intersection(fe.begin(), fe.end(),
+		     gesv.begin(), gesv.end(),
+		     back_inserter(intersect));
+
+    // Now check if we should insert this in -- we have to go through
+    // all, because we are using binary encoding of numbers!!
+    if(intersect.size() == fe.size() && (ccount > pcount))
+      ret = fe;
+  }
   return ret;
 }
 
