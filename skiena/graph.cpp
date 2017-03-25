@@ -147,10 +147,6 @@ vector<shared_ptr<Vertex>> mst (shared_ptr<Vertex> p, vector<shared_ptr<Vertex>>
 vector<shared_ptr<Vertex>> sp_mst(Graph g, shared_ptr<Vertex> start) {
   // We need to use a priority queue.
 
-  // Initialize the start vertex distance to zero.
-  start->dist.first = 0;
-  start->dist.second = nullptr;
-
   // Declare a pq with a comparator.
   auto comp = [](const shared_ptr<Vertex> e1,
 		 const shared_ptr<Vertex> e2){
@@ -207,36 +203,31 @@ vector<shared_ptr<Vertex>> independent_sets (Graph g){
   vector<shared_ptr<Vertex>> ret {};
   vector<shared_ptr<Vertex>> gvs = g.getVertices();
   vector<shared_ptr<Edge>> ges = g.getEdges();
-  vector<shared_ptr<Vertex>> gesv;
-  for (auto it = ges.begin(); it != ges.end(); ++it) {
-    gesv.push_back((*it)->first());
-    gesv.push_back((*it)->second());
-  }
-  auto last = unique(gesv.begin(), gesv.end());
-  gesv.erase(last, gesv.end()); // removed duplicates.
-
-  vector<shared_ptr<Vertex>> intersect;
-  // Else we continue.
-  // All the connected edges in the graph.
   unsigned pcount = 0;
   for (unsigned i = (2 << (gvs.size() - 1))-1; i >=1 ; --i) {
     bitset<N> bb(i);  		// FIXME: This is very annoying in C++
     vector<shared_ptr<Vertex>> fe;
     // Now just get the length of bits that we need.
+    bool possibly_return = true;
     unsigned ccount = 0;
     for (int j = gvs.size()-1; j >= 0; --j)
-      if (j == 1) {
+      if (j) {
 	++ccount;
+	// Now get the edge's opposite and check. 
+	for (auto it = ges.begin(); it != ges.end(); ++it) {
+	  if ((*it)->first()->getName() == gvs[j]->getName()
+	      || (*it)->second()->getName() == gvs[j]->getName()) {
+	    if (find(gvs.begin(), gvs.end(),
+		     (*it)->opposite(gvs[j]->getName())) == gvs.end()) {
+	      possibly_return = false;
+	      break;
+	    }
+	  }
+	}
 	fe.push_back(gvs[j]);
       }
     // Now check for intersection.
-    set_intersection(fe.begin(), fe.end(),
-		     gesv.begin(), gesv.end(),
-		     back_inserter(intersect));
-
-    // Now check if we should insert this in -- we have to go through
-    // all, because we are using binary encoding of numbers!!
-    if(!intersect.empty() && (ccount > pcount))
+    if(possibly_return && ccount > pcount)
       ret = fe;
   }
   return ret;
