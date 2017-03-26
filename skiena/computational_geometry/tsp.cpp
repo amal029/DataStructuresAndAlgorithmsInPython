@@ -11,7 +11,7 @@ using namespace std;
 
 
 #define N 3 			// 3 dimensional space.
-#define M 15			// The number of points to visit.
+#define M 11			// The number of points to visit.
 
 
 // Euclidian distance between two points in the distance matrix. For now
@@ -38,7 +38,6 @@ int main(void)
       // Generate a random number for the element.
       smatrix[N*i+j] = rand()%100;
 
-  // Now we use monte-carlo with generation of permutations.
   // First let us make a random permutation
 
   array<unsigned, M> perm;
