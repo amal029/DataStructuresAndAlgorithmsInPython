@@ -2,6 +2,7 @@
 #include <stack>
 #include <queue>
 #include <algorithm>
+#include <bitset>
 
 #define N 32
 

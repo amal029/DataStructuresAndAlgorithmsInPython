@@ -3,6 +3,7 @@
 #include <tuple>
 #include <memory>
 #include <algorithm>
+#include <climits>
 
 class Edge;
 
