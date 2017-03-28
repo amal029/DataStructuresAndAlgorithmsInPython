@@ -4,8 +4,10 @@
 #include <memory>
 #include <algorithm>
 #include <climits>
+#include <bitset>
 
 class Edge;
+
 
 class Vertex
 {
@@ -20,6 +22,8 @@ public:
   inline void setVisited(bool v) {visited = v;}
   unsigned degree = 0;
   std::pair<unsigned, std::shared_ptr<Vertex>> dist {INT_MAX, nullptr};
+  int color;
+  bool colored = false;
   
 protected:
   int weight;
@@ -43,6 +47,8 @@ public:
     return std::get<1>(this->vertices).lock();
   }
   std::shared_ptr<Vertex> opposite(std::string) ;
+  int color;
+  bool colored = false;
   virtual ~Edge(){std::cout << "deleting edge!" << std::endl;}
 
   inline unsigned getWeight() const {return weight;}
@@ -77,3 +83,8 @@ private:
   std::vector<std::shared_ptr<Vertex>> vertices;
   std::vector<std::shared_ptr<Edge>> edges;
 };
+
+// Vertex coloring function
+std::vector<int> vc_main(Vertex* start);
+// Edge coloring function
+std::vector<int> ec_main(Vertex* start);

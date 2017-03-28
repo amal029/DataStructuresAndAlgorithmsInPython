@@ -241,15 +241,15 @@ int main(void)
   vector<tuple<string, int>> vertices = {make_tuple("a", 1), make_tuple("b", 2),
 					 make_tuple("c", 3), make_tuple("d", 4)};
   vector<tuple<string, string, int>> edges = {make_tuple("a", "b", 5), make_tuple("a", "c", 1),
-					      make_tuple("a", "d", 4), make_tuple("c", "d", 2),
+					      make_tuple("a", "d", 4),
+					      make_tuple("c", "d", 2),
 					      make_tuple("d", "b", 3)};
 
   // This is the graph.
   Graph g(vertices, edges, false);
   vector<shared_ptr<Vertex>> mv = g.getVertices();
 
-  // Print the graph using dfs and a std::copy_backward(std::begin(container), std::end(container), std::end(container));
-
+  // Print the graph using dfs
   cout  << "DFS" << endl;
   // Here lambda is most likely also inlined.
   doDFS(g, g.getVertex("a"), [](Vertex* x) -> void {cout << x->getName() << endl;});
@@ -280,5 +280,19 @@ int main(void)
     cout << x->getName() << " ";
   cout << "\n";
 
+  // Now do the vector coloring algorithm.
+  g.resetVisited();
+  vector<int> colors = vc_main(g.getVertex("a").get());
+  cout << "number of colors used to color the vertices: " << colors.size() << "\n";
+
+  for(auto x: g.getVertices())
+    cout << x->getName() << ":" << x->color << "\n";
+
+  g.resetVisited();
+  colors = ec_main(g.getVertex("a").get());
+  cout << "number of colors used to color the edges: " << colors.size() << "\n";
+
+  for(auto x: g.getEdges())
+    cout << "edge color:" << x->color << "\n";
   return 0;
 }

@@ -8,7 +8,7 @@
 using namespace std;
 
 
-vector<int> vc_main(Vertex* start)
+vector<int> ec_main(Vertex* start)
 {
 
   queue<Vertex*> s;
@@ -23,27 +23,34 @@ vector<int> vc_main(Vertex* start)
       Vertex* v = s.front();
       v->setVisited(true);
       s.pop();
-      for (auto x: v->neighbors()){
-	if (x->colored)
+      // Processing the incidentedges.
+      vector<shared_ptr<Edge>> nce;
+      for (auto x: v->getIEdges()){
+	if (!x->colored)
+	  nce.push_back(x);
+	else
 	  nc.push_back(x->color);
-	if (!x->getVisited()){
-	  s.push(x.get());
-	  x->setVisited(true);
+	Vertex* n = x->opposite(v->getName()).get();
+	if (!n->getVisited()){
+	  s.push(n);
+	  n->setVisited(true);
 	}
       }
+
       set_difference(result.begin(), result.end(),
 		     nc.begin(), nc.end(),
 		     inserter(diff, diff.begin()));
-      // Now if diff is not empty, then pick one.
-      if (!diff.empty()) {
-	v->color = *diff.begin();
+
+      // Be careful here, because we can have many edges to color.
+      for (unsigned i = 0; i < nce.size(); i++) {
+	if (!diff.empty())
+	  nce[i]->color = diff[i];
+	else {
+	  result.push_back(color++);
+	  nce[i]->color = *(result.end()-1);
+	}
+	nce[i]->colored = true;
       }
-      else{
-	result.push_back(color);
-	v->color = *(result.end()-1);
-	color += 1;
-      }
-      v->colored = true;
       // Now erase things.
       nc.clear();
       diff.clear();
