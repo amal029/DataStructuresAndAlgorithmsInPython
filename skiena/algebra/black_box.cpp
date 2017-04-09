@@ -3,8 +3,12 @@
 #include <bitset>
 #include <cmath>
 #include <algorithm>
+#include <climits>
 
-#define N 40
+#define N 32
+// Number of bits to represent int
+#define INT_BITS 32
+ 
 
 using namespace std;
 
@@ -159,11 +163,84 @@ void compute_max_xor(vector<long>& tape){
 }
 
 // This is O(n)
-void gaussian_elimination(vector<long>& tape){
-  
+// Function to return maximum XOR subset in set[]
+void maxSubarrayXOR(vector<unsigned> set, unsigned n, unsigned IB) {
+  // Initialize index of chosen elements
+  int index = 0;
+ 
+  // Traverse through all bits of integer starting from
+  // the most significant bit (MSB)
+  // for (int i=INT_BITS-1; i>=0; i--)
+  for (int i=IB-1; i>=0; i--)
+    {
+      // Initialize index of maximum element and the maximum element
+      unsigned maxInd = index, maxEle = 0;
+      for (unsigned j=index; j<n; j++)
+	{
+	  // If i'th bit of set[j] is set and set[j] is greater
+	  // than max so far.
+	  if ( (set[j]&(1<<i))!= 0 && set[j]>maxEle )
+	    maxEle = set[j], maxInd = j;
+	}
+ 
+      // If there was no element with i'th bit set, move to smaller i
+      if (maxEle == 0)
+	continue;
+ 
+      // Put maximum element with i'th bit set at index 'index'
+      swap(set[index], set[maxInd]);
+ 
+      // Update maxInd and increment index
+      maxInd = index;
+ 
+      // Do XOR of set[maxIndex] with all numbers having i'th
+      // bit as set.
+      for (unsigned j=0; j<n; j++)
+	{
+	  // XOR set[maxInd] those numbers which have the i'th
+	  // bit set
+	  if ((j!=maxInd) && ((set[j] & (1<<i)) !=0))
+	    set[j] = set[j]^set[maxInd];
+	}
+ 
+      // Increment index of chosen elements
+      index++;
+    }
+ 
+  // Final result is XOR of all elements
+  int res = 0;
+  for (unsigned i=0; i<n; i++)
+    res ^= set[i];
+  cout << res << "\n";
 }
 
+void gaussian(vector<long>& tape){
+  vector<unsigned> bb;
+  for (auto& x: tape){
+    if (x > 0)
+      bb.push_back(x);
+    else
+      bb.erase(find(bb.begin(), bb.end(), abs(x)));
 
+    if (bb.empty())
+      cout << 0 << endl;
+
+    // The main computation
+    else{
+      sort(bb.begin(), bb.end(), greater<unsigned long>()); // first value is maximum
+      bitset<N>temp(bb[0]);
+      unsigned i = N-1;
+      while (i > 0){
+	if (temp[i])
+	  break;
+	--i;
+      }
+      unsigned req_bits = i+1;
+      maxSubarrayXOR(bb, bb.size(), req_bits);
+    }
+  }
+}
+ 
 void input (void){
   string tests;
   getline(cin, tests);
@@ -190,8 +267,11 @@ void input (void){
   // Now we can compute the outputs
   // compute_xors(tape);
 
-  // Compute xors cunning.
-  compute_max_xor(tape);
+  // Compute xors greedy, but not optimal.
+  // compute_max_xor(tape);
+
+  // O(n) and optimal based on gaussian elimination.
+  gaussian(tape);
 }
 
 
