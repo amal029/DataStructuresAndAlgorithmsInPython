@@ -4,10 +4,11 @@
 #include <cmath>
 #include <algorithm>
 #include <climits>
+#include <cstring>
 
 #define N 32
 // Number of bits to represent int
-#define INT_BITS 32
+// #define INT_BITS 32
  
 
 using namespace std;
@@ -164,7 +165,7 @@ void compute_max_xor(vector<long>& tape){
 
 // This is O(n)
 // Function to return maximum XOR subset in set[]
-void maxSubarrayXOR(vector<unsigned> set, unsigned n, unsigned IB) {
+void maxSubarrayXOR(unsigned *set, unsigned n, unsigned IB) {
   // Initialize index of chosen elements
   int index = 0;
  
@@ -214,7 +215,7 @@ void maxSubarrayXOR(vector<unsigned> set, unsigned n, unsigned IB) {
   cout << res << "\n";
 }
 
-void gaussian(vector<long>& tape){
+void gaussian(vector<int> &tape, unsigned* bcopy){
   vector<unsigned> bb;
   for (auto& x: tape){
     if (x > 0)
@@ -236,7 +237,11 @@ void gaussian(vector<long>& tape){
 	--i;
       }
       unsigned req_bits = i+1;
-      maxSubarrayXOR(bb, bb.size(), req_bits);
+      // maxSubarrayXOR(bb, bb.size(), req_bits);
+      // unsigned* bcopy = (unsigned*)malloc(sizeof(unsigned)*bb.size());
+      memcpy(bcopy, &bb[0], sizeof(unsigned)*bb.size());
+      maxSubarrayXOR(bcopy, bb.size(), req_bits);
+      // free(bcopy);
     }
   }
 }
@@ -249,20 +254,26 @@ void input (void){
     throw ("Too many or too few input test cases");
     exit(1);
   }
-  string line;
-  const char* ll;
-  getline(cin, line);		// What does this do?
-  ll = line.c_str();
-  char* end;
+  // string line;
+  // const char* ll;
+  // getline(cin, line);		// What does this do?
+  // ll = line.c_str();
+  // char* end;
   // There can be only 6 of these whatever happens.
   unsigned count = 0;
-  vector<long> tape;
-  for(long j = strtol(ll, &end, 10);
-      (ll != end) && (count < 6);
-      j = strtol(ll, &end, 10)) {
-    ll = end;
-    tape.push_back(j);
+  vector<int> tape;
+  int value;
+  while (count < tt) {
+    cin >> value;
+    tape.push_back(value);
+    ++count;
   }
+  // for(long j = strtol(ll, &end, 10);
+  //     (ll != end) && (count < 6);
+  //     j = strtol(ll, &end, 10)) {
+  //   ll = end;
+  //   tape.push_back(j);
+  // }
 
   // Now we can compute the outputs
   // compute_xors(tape);
@@ -271,7 +282,10 @@ void input (void){
   // compute_max_xor(tape);
 
   // O(n) and optimal based on gaussian elimination.
-  gaussian(tape);
+  unsigned* bcopy = (unsigned*) malloc(sizeof(unsigned)*tt);
+  gaussian(tape, bcopy);
+  free(bcopy);
+  // cout << "tutu1" << "\n";
 }
 
 
