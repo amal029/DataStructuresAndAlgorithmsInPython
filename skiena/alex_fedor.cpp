@@ -185,7 +185,6 @@ void make_adg_list(void){
     if (alist[i] == nullptr) {
       // we need to initialize the list for this node
       // Now make the tuple
-      // tuple<unsigned, unsigned, unsigned> n_w = make_tuple(j, w, 1);
       // cout << "pushing: " << i << " " << j << "\n";
       nwwn *n_w = (nwwn*) malloc(sizeof(nwwn));
       n_w->dest = j;
